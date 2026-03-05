@@ -5,8 +5,11 @@ vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.swapfile = false
+vim.opt.undofile = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.clipboard = "unnamedplus"
 vim.g.mapleader = " "
-
 
 vim.keymap.set('n', '<leader>o', ':update<CR>:source<CR>')
 
@@ -22,7 +25,7 @@ vim.pack.add({
     { src = "https://github.com/nvim-lua/plenary.nvim.git",             name = "plenary" },
     { src = "https://github.com/nvim-treesitter/nvim-treesitter.git",   name = "treesitter" },
     { src = "https://github.com/windwp/nvim-autopairs.git",             name = "autopairs" },
-
+    { src = "https://github.com/lewis6991/gitsigns.nvim.git",           name = "gitsigns" },
 })
 
 require("catppuccin").setup({
@@ -97,15 +100,31 @@ require("catppuccin").setup({
 })
 vim.cmd.colorscheme "catppuccin"
 
+require("gitsigns").setup()
+
+vim.diagnostic.config({
+    virtual_text = true,
+    signs = true,
+    underline = true,
+    update_in_insert = false,
+    severity_sort = true,
+})
+local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+for type, icon in pairs(signs) do
+    local hl = "DiagnosticSign" .. type
+    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+end
+
+local lsp_servers = { "lua_ls", "pyright", "rust_analyzer" }
 
 require("mason").setup()
 require("mason-lspconfig").setup({
-    ensure_installed = { "lua_ls", "pyright", "rust_analyzer" },
+    ensure_installed = lsp_servers,
 })
 
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-vim.lsp.enable({ "lua_ls", "pyright", "rust_analyzer" }, {
-    canabilities = capabilities
+vim.lsp.enable(lsp_servers, {
+    capabilities = capabilities
 })
 
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -116,10 +135,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
         end
 
         local opts = { buffer = args.buf }
-        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
         vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
         vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+        vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, opts)
+        vim.keymap.set('n', '<leader>fm', function()
+            vim.lsp.buf.format({ async = true })
+        end, opts)
     end,
 })
 
@@ -145,30 +166,24 @@ require("nvim-autopairs").setup({})
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 
-
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
 vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
 
+local ts_langs = { "lua", "python", "rust" }
 
-require("nvim-treesitter").setup {
+require("nvim-treesitter").setup({
     install_dir = vim.fn.stdpath('data') .. '/site'
-}
-
-require("nvim-treesitter").install({ "lua", "python", "rust" })
-
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "lua", "python", "rust" },
-    callback = function()
-        vim.treesitter.start()
-    end,
 })
 
+require("nvim-treesitter").install(ts_langs)
+
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "lua", "python", "rust" },
+    pattern = ts_langs,
     callback = function()
+        vim.treesitter.start()
         vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
     end,
 })

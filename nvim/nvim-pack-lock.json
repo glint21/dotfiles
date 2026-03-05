@@ -16,6 +16,10 @@
       "rev": "cbc7b02bb99fae35cb42f514762b89b5126651ef",
       "src": "https://github.com/hrsh7th/cmp-nvim-lsp.git"
     },
+    "gitsigns": {
+      "rev": "9f3c6dd7868bcc116e9c1c1929ce063b978fa519",
+      "src": "https://github.com/lewis6991/gitsigns.nvim.git"
+    },
     "lspconfig": {
       "rev": "44acfe887d4056f704ccc4f17513ed41c9e2b2e6",
       "src": "https://github.com/neovim/nvim-lspconfig.git"
@@ -26,7 +30,7 @@
     },
     "mason": {
       "rev": "44d1e90e1f66e077268191e3ee9d2ac97cc18e65",
-      "src": "https://github.com/williamboman/mason.nvim.git"
+      "src": "https://github.com/williamboman/mason.nvim"
     },
     "mason-lspconfig": {
       "rev": "21c2a84ce368e99b18f52ab348c4c02c32c02fcf",
