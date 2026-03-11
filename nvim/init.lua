@@ -12,6 +12,7 @@ vim.opt.clipboard = "unnamedplus"
 vim.g.mapleader = " "
 
 vim.keymap.set('n', '<leader>o', ':update<CR>:source<CR>')
+vim.keymap.set('n', '<leader>cd', ':Ex<CR>')
 
 vim.pack.add({
     { src = "https://github.com/catppuccin/nvim.git",                   name = "catppuccin" },
